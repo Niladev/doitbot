@@ -1,0 +1,33 @@
+{
+  "name": "doitbot",
+  "version": "1.0.0",
+  "description": "A telegram bot for periodic reminders",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Niladev/doohitbot.git"
+  },
+  "keywords": [
+    "telegram",
+    "do",
+    "it",
+    "do",
+    "it",
+    "telegram",
+    "bot",
+    "bot"
+  ],
+  "author": "Nicklas Jensen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Niladev/doitbot/issues"
+  },
+  "homepage": "https://github.com/Niladev/doitbot#readme",
+  "dependencies": {
+    "express": "^4.15.3"
+  }
+}
