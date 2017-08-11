@@ -21,6 +21,6 @@ bot.command('remindme', botController.remindMe);
 bot.command('reminders', botController.reminders);
 bot.command('done', botController.done);
 
-app.listen(3000, () => {
+app.listen(process.env.PORT || 3000, () => {
     console.log("App listening on port 3000");
 })
