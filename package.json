@@ -1,5 +1,5 @@
 {
-  "name": "doitbot",
+  "name": "doohitbot",
   "version": "1.0.0",
   "description": "A telegram bot for periodic reminders",
   "main": "index.js",
@@ -24,10 +24,16 @@
   "author": "Nicklas Jensen",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Niladev/doitbot/issues"
+    "url": "https://github.com/Niladev/doohitbot/issues"
   },
-  "homepage": "https://github.com/Niladev/doitbot#readme",
+  "homepage": "https://github.com/Niladev/doohitbot#readme",
   "dependencies": {
-    "express": "^4.15.3"
+    "body-parser": "1.17.2",
+    "botgram": "2.0.1",
+    "dotenv": "4.0.0",
+    "express": "4.15.3",
+    "mongodb": "2.2.30",
+    "node-cron": "1.2.0",
+    "nodemon": "1.11.0"
   }
 }
