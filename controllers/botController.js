@@ -7,7 +7,7 @@ var reminders = {};
 ** Temporary placement of database connection.
 */
 const MongoClient = require('mongodb').MongoClient;
-const mongoURL = process.env.DATABASE_URL;
+const mongoURL = process.env.DB_URL;
 var mongoDB;
 MongoClient.connect(mongoURL, (err, database) => {
     if(err) {
@@ -220,6 +220,7 @@ module.exports = {
 
                     // Create cron job based on valid cron string
                     reminder.schedule = cron.schedule(cronString, () => {
+                        console.log("Cron has been executed");
                         if(!reminder.active && reminder.recurring){
                             reminders[msg.from.id][reminderName.replace(/\s+/g, '').toLowerCase()].active = true;
                             mongoDB.collection('reminders')
@@ -259,7 +260,7 @@ module.exports = {
                         reminders[msg.from.id] = {};
                     };
                     reminders[msg.from.id][reminder.name.replace(/\s+/g, '').toLowerCase()] = reminder;
-                    reply.text('Your reminder has been stored!');
+                    reply.text('Your reminder has been saved!');
                     return;
             });
         } else {
