@@ -94,8 +94,6 @@ module.exports = {
                         reply.text('An error occured while finding reminder');
                         return;
                     }
-
-                    console.log(reminder);
                     dbReminder = reminder;
                 })
                 // Check if reminder is recurring and delete cron if not
@@ -217,12 +215,13 @@ module.exports = {
                         return;
                     };
 
-
+                    setInterval(() => {
+                        reply.text('This is a test');
+                    }, 10000);
                     // Create cron job based on valid cron string
                     reminder.schedule = cron.schedule(cronString, () => {
-                        console.log("Cron has been executed");
                         if(!reminder.active && reminder.recurring){
-                            reminders[msg.from.id][reminderName.replace(/\s+/g, '').toLowerCase()].active = true;
+                            reminders[msg.from.id][reminder.name.replace(/\s+/g, '').toLowerCase()].active = true;
                             mongoDB.collection('reminders')
                                 .updateOne({owner: msg.from.id, name: reminder.name}, {$set:{active: true}});
                             return;
