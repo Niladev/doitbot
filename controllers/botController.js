@@ -148,13 +148,15 @@ module.exports = {
         */
 
         var reminder = {};
-        if(msg.text.split('/remindme')[1].length <= 0) {
-            reply.text('In order to set a reminder you have to put a day, time, interval and name for the reminder.\n' +
+        var msgText = msg.text.split(' ');
+        console.log(msgText.length);
+        if(msgText.length <= 1) {
+            reply.text('In order to set a reminder you have to put a day, time,' +
+            'interval and name for the reminder.\n' +
             'Like this:\n\n' +
             'Today 15:00 1 minute Create new reminder!');
+            return;
         }
-        var msgText = msg.text.split(' ');
-
         var reminderDay = msgText[1].toLowerCase();
 
 
