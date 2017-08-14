@@ -23,7 +23,10 @@ module.exports = {
         // The /start function for the bot.
         // Replies with a message on how to use the bot
 
-        reply.text('This bot will help you set a reminder and notify you periodically to do it until it has been done. When done, simply type /done <name of reminder>');
+        reply.text('This bot will help you set a reminder and notify you ' +
+        ' periodically to do it until it has been done. When done, simply ' +
+        'type /done <name of reminder>\n\n' +
+        'Currently the bot only supports CE(S)T timezone.');
     },
 
     help: (msg, reply, next) => {
@@ -214,11 +217,9 @@ module.exports = {
                         reply.text('An error happened while saving the reminder. Please try again.');
                         return;
                     };
-
-                    // Set interval for test purposes
+                    
                     // Create cron job based on valid cron string
                     reminder.schedule = cron.schedule(cronString, () => {
-                        console.log("Something");
                         if(!reminder.active && reminder.recurring){
                             reminders[msg.from.id][reminder.name.replace(/\s+/g, '').toLowerCase()].active = true;
                             mongoDB.collection('reminders')
@@ -252,7 +253,6 @@ module.exports = {
                         }
                     });
 
-                    console.log(reminder.schedule);
                     // Add reminder to reminders if everything is successful
                     if(!reminders[msg.from.id]) {
                         reminders[msg.from.id] = {};
@@ -265,13 +265,5 @@ module.exports = {
             // TODO: Add better error handling
             reply.text('It seems there was an error with the format. Please try again');
         }
-    },
-
-    test: (msg, reply, next) => {
-        reply.text('Test started');
-        cron.schedule('*/1 * * * *', () => {
-            console.log('Test that runs every minute');
-            reply.text('Test that runs every minute');
-        })
     }
 }
