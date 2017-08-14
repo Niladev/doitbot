@@ -215,7 +215,7 @@ module.exports = {
                         return;
                     };
 
-                    
+
                     // Create cron job based on valid cron string
                     reminder.schedule = cron.schedule(cronString, () => {
                         if(!reminder.active && reminder.recurring){
@@ -233,26 +233,30 @@ module.exports = {
                         if(cron.validate(intervalString)){
                             reminder.intervalSchedule = cron.schedule(intervalString, () => {
                                 reply.text(reminder.name);
-                            }, true);
+                            }, false);
+                            reminder.intervalSchedule.start();
                         } else {
                             reply.text('There was an error in the interval, so defaulted to 5 minutes.');
                             reminder.intervalSchedule = cron.schedule('5 * * * *', () => {
                                 reply.text(reminder.name);
-                            });
+                            }, false);
+
+                            reminder.intervalSchedule.start();
                         }
 
                         // Remove reminder if not recurring
                         if(!reminder.recurring){
-                            reminders[msg.from.id][reminderName.replace(/\s+/g, '').toLowerCase()].active = false;
+                            reminders[msg.from.id][reminder.name.replace(/\s+/g, '').toLowerCase()].active = false;
                             mongoDB.collection('reminders')
                                 .updateOne({owner: msg.from.id, name: reminder.name}, {$set:{active: false}});
                             reminder.schedule.destroy();
                             return;
                         }
-                    }, true);
+                    }, false);
+
+                    reminder.schedule.start();
 
                     // Add reminder to reminders if everything is successful
-
                     if(!reminders[msg.from.id]) {
                         reminders[msg.from.id] = {};
                     };
