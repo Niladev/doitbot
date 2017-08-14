@@ -215,9 +215,7 @@ module.exports = {
                         return;
                     };
 
-                    setInterval(() => {
-                        reply.text('This is a test');
-                    }, 10000);
+                    
                     // Create cron job based on valid cron string
                     reminder.schedule = cron.schedule(cronString, () => {
                         if(!reminder.active && reminder.recurring){
@@ -235,7 +233,7 @@ module.exports = {
                         if(cron.validate(intervalString)){
                             reminder.intervalSchedule = cron.schedule(intervalString, () => {
                                 reply.text(reminder.name);
-                            });
+                            }, true);
                         } else {
                             reply.text('There was an error in the interval, so defaulted to 5 minutes.');
                             reminder.intervalSchedule = cron.schedule('5 * * * *', () => {
@@ -251,7 +249,7 @@ module.exports = {
                             reminder.schedule.destroy();
                             return;
                         }
-                    });
+                    }, true);
 
                     // Add reminder to reminders if everything is successful
 
