@@ -258,9 +258,6 @@ module.exports = {
                         reminders[msg.from.id] = {};
                     };
                     reminders[msg.from.id][reminder.name.replace(/\s+/g, '').toLowerCase()] = reminder;
-                    setInterval(() => {
-                        console.log(reminders[msg.from.id][reminder.name.replace(/\s+/g, '').toLowerCase()]);
-                    }, 1000)
                     reply.text('Your reminder has been saved!');
                     return;
             });
@@ -268,5 +265,13 @@ module.exports = {
             // TODO: Add better error handling
             reply.text('It seems there was an error with the format. Please try again');
         }
+    },
+
+    test: (msg, reply, next) => {
+        reply.text('Test started');
+        cron.schedule('*/1 * * * *', () => {
+            console.log('Test that runs every minute');
+            reply.text('Test that runs every minute');
+        })
     }
 }

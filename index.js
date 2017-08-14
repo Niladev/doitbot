@@ -20,6 +20,7 @@ bot.command('help', botController.help);
 bot.command('remindme', botController.remindMe);
 bot.command('reminders', botController.reminders);
 bot.command('done', botController.done);
+bot.command('test', botController.test);
 
 app.listen(3000, () => {
     console.log("App listening on port 3000");
