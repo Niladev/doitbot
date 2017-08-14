@@ -148,7 +148,13 @@ module.exports = {
         */
 
         var reminder = {};
+        if(msg.text.split('/remindme')[1].length <= 0) {
+            reply.text('In order to set a reminder you have to put a day, time, interval and name for the reminder.\n' +
+            'Like this:\n\n' +
+            'Today 15:00 1 minute Create new reminder!');
+        }
         var msgText = msg.text.split(' ');
+
         var reminderDay = msgText[1].toLowerCase();
 
 
@@ -217,7 +223,7 @@ module.exports = {
                         reply.text('An error happened while saving the reminder. Please try again.');
                         return;
                     };
-                    
+
                     // Create cron job based on valid cron string
                     reminder.schedule = cron.schedule(cronString, () => {
                         if(!reminder.active && reminder.recurring){
