@@ -218,6 +218,7 @@ module.exports = {
 
                     // Create cron job based on valid cron string
                     reminder.schedule = cron.schedule(cronString, () => {
+                        console.log("Something");
                         if(!reminder.active && reminder.recurring){
                             reminders[msg.from.id][reminder.name.replace(/\s+/g, '').toLowerCase()].active = true;
                             mongoDB.collection('reminders')
@@ -233,8 +234,7 @@ module.exports = {
                         if(cron.validate(intervalString)){
                             reminder.intervalSchedule = cron.schedule(intervalString, () => {
                                 reply.text(reminder.name);
-                            }, false);
-                            reminder.intervalSchedule.start();
+                            });
                         } else {
                             reply.text('There was an error in the interval, so defaulted to 5 minutes.');
                             reminder.intervalSchedule = cron.schedule('5 * * * *', () => {
