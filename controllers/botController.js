@@ -215,7 +215,7 @@ module.exports = {
                         return;
                     };
 
-
+                    // Set interval for test purposes
                     // Create cron job based on valid cron string
                     reminder.schedule = cron.schedule(cronString, () => {
                         console.log("Something");
@@ -258,6 +258,9 @@ module.exports = {
                         reminders[msg.from.id] = {};
                     };
                     reminders[msg.from.id][reminder.name.replace(/\s+/g, '').toLowerCase()] = reminder;
+                    setInterval(() => {
+                        console.log(reminders[msg.from.id][reminder.name.replace(/\s+/g, '').toLowerCase()]);
+                    }, 1000)
                     reply.text('Your reminder has been saved!');
                     return;
             });
