@@ -2,6 +2,7 @@
 
 const cron = require('node-cron');
 const db = require('../util/dbUtil');
+const reminderUtil = require('../util/reminderUtil');
 var reminders = {};
 
 module.exports = {
@@ -42,11 +43,11 @@ module.exports = {
 
         var reminderList = "These are your active reminders:\n";
         var counter = 0;
-        for(var reminder in reminders[msg.from.id]) {
-            if(reminders[msg.from.id][reminder].active) {
+        for(var reminder in reminderUtil.find(msg.from.id)) {
+            if(reminderUtil.find(msg.from.id)[reminder].active) {
                 counter += 1;
 
-                reminderList += "\n" + reminders[msg.from.id][reminder].name;
+                reminderList += "\n" + reminderUtil.find(msg.from.id)[reminder].name;
             }
 
         }
@@ -71,22 +72,14 @@ module.exports = {
 
 
         if(reminderName.length > 1) {
-            if(reminders[msg.from.id]) {
-                var reminder = reminders[msg.from.id][reminderName.replace(/\s+/g, '').toLowerCase()];
+            if(reminderUtil.find(msg.from.id)) {
+                var reminder = reminderUtil.findOne(msg.from.id, reminderName);
             }
 
 
             // Validate input to ensure that a reminder was found
             if(reminder) {
-                var dbReminder;
 
-                db.get().collection('reminders').findOne({owner: msg.from.id, name: reminder.name}, (err, reminder) => {
-                    if(err) {
-                        reply.text('An error occured while finding reminder');
-                        return;
-                    }
-                    dbReminder = reminder;
-                })
                 // Check if reminder is recurring and delete cron if not
                 if(!reminder.recurring) {
                     reminder.schedule.destroy();
@@ -96,6 +89,8 @@ module.exports = {
                     if(reminder.intervalSchedule) {
                         reminder.intervalSchedule.destroy();
                     }
+
+                    reminderUtil.updateOne(msg.from.id, reminderName, reminder);
                     reply.text('Good job!');
                     return;
                 }
@@ -106,6 +101,8 @@ module.exports = {
                     // If intervalSchedule was found, destroy it to remove notifiers.
                     // but keep the reminder active.
                     reminder.intervalSchedule.destroy();
+
+                    reminderUtil.updateOne(msg.from.id, reminderName, reminder);
                     reply.text('Good job!');
                     return;
                 } else {
@@ -113,6 +110,8 @@ module.exports = {
                     // If no intervalSchedule was found, set reminder to inactive
                     // To ignore next reminder and avoid creating intervalSchedule.
                     reminder.active = false;
+
+                    reminderUtil.updateOne(msg.from.id, reminderName, reminder);
                     reply.text('Good job!');
                     return;
                 }
@@ -250,10 +249,7 @@ module.exports = {
                     });
 
                     // Add reminder to reminders if everything is successful
-                    if(!reminders[msg.from.id]) {
-                        reminders[msg.from.id] = {};
-                    };
-                    reminders[msg.from.id][reminder.name.replace(/\s+/g, '').toLowerCase()] = reminder;
+                    reminderUtil.insertOne(msg.from.id, reminder);
                     reply.text('Your reminder has been saved!');
                     return;
             });
