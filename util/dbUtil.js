@@ -4,6 +4,7 @@ const mongoURL = process.env.DB_URL;
 
 var state = {
     db: null,
+    reminders: {}
 };
 
 exports.connect = (done) => {

@@ -7,7 +7,7 @@ const bodyParser = require('body-parser');
 const botgram = require('botgram');
 const bot = botgram(process.env.ACCESS_TOKEN);
 const botController = require('./controllers/botController');
-const db = require('./db');
+const db = require('./util/dbUtil');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
@@ -22,12 +22,12 @@ bot.command('done', botController.done);
 
 db.connect((err) => {
     if(err) {
-        console.log('--ERROR CONNECTING TO THE DATABASE');
+        console.log('--ERROR CONNECTING TO THE DATABASE: ');
         console.log(err);
         process.exit(1);
     } else {
         app.listen(3000, () => {
-            console.log("App listening on port 3000");
+            console.log('App listening on port 3000');
         });
     }
 })
