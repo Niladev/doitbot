@@ -1,22 +1,8 @@
 "use strict";
 
 const cron = require('node-cron');
+const db = require('../db');
 var reminders = {};
-
-/*
-** Temporary placement of database connection.
-*/
-const MongoClient = require('mongodb').MongoClient;
-const mongoURL = process.env.DB_URL;
-var mongoDB;
-MongoClient.connect(mongoURL, (err, database) => {
-    if(err) {
-        console.log(err);
-        return;
-    }
-
-    mongoDB = database;
-});
 
 module.exports = {
     start: (msg, reply, next) => {
@@ -94,7 +80,7 @@ module.exports = {
             if(reminder) {
                 var dbReminder;
 
-                mongoDB.collection('reminders').findOne({owner: msg.from.id, name: reminder.name}, (err, reminder) => {
+                db.get().collection('reminders').findOne({owner: msg.from.id, name: reminder.name}, (err, reminder) => {
                     if(err) {
                         reply.text('An error occured while finding reminder');
                         return;
@@ -105,7 +91,7 @@ module.exports = {
                 if(!reminder.recurring) {
                     reminder.schedule.destroy();
                     reminder.active = false;
-                    mongoDB.collection('reminders')
+                    db.get().collection('reminders')
                         .updateOne({owner: msg.from.id, name: reminder.name}, {$set:{active: false}});
                     if(reminder.intervalSchedule) {
                         reminder.intervalSchedule.destroy();
@@ -222,7 +208,7 @@ module.exports = {
             reminder.cronString = cronString;
 
             // Persist object without cron task to database
-            mongoDB.collection('reminders').insert(reminder, (err, result) => {
+            db.get().collection('reminders').insert(reminder, (err, result) => {
                     if(err) {
                         reply.text('An error happened while saving the reminder. Please try again.');
                         return;
@@ -232,7 +218,7 @@ module.exports = {
                     reminder.schedule = cron.schedule(cronString, () => {
                         if(!reminder.active && reminder.recurring){
                             reminders[msg.from.id][reminder.name.replace(/\s+/g, '').toLowerCase()].active = true;
-                            mongoDB.collection('reminders')
+                            db.get().collection('reminders')
                                 .updateOne({owner: msg.from.id, name: reminder.name}, {$set:{active: true}});
                             return;
                         } else if(!reminder.active && !reminder.recurring) {
@@ -256,7 +242,7 @@ module.exports = {
                         // Remove reminder if not recurring
                         if(!reminder.recurring){
                             reminders[msg.from.id][reminder.name.replace(/\s+/g, '').toLowerCase()].active = false;
-                            mongoDB.collection('reminders')
+                            db.get().collection('reminders')
                                 .updateOne({owner: msg.from.id, name: reminder.name}, {$set:{active: false}});
                             reminder.schedule.destroy();
                             return;
