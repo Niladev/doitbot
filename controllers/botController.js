@@ -1,8 +1,8 @@
 "use strict";
 
 const cron = require('node-cron');
-const db = require('../util/dbUtil');
-const reminderUtil = require('../util/reminderUtil');
+const db = require('../util/db');
+const reminderUtil = require('../util/reminder');
 var reminders = {};
 
 module.exports = {

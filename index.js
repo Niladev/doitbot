@@ -7,7 +7,7 @@ const bodyParser = require('body-parser');
 const botgram = require('botgram');
 const bot = botgram(process.env.ACCESS_TOKEN);
 const botController = require('./controllers/botController');
-const db = require('./util/dbUtil');
+const db = require('./util/db');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
