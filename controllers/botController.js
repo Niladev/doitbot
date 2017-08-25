@@ -20,8 +20,11 @@ MongoClient.connect(mongoURL, (err, database) => {
 
 module.exports = {
     start: (msg, reply, next) => {
-        // The /start function for the bot.
-        // Replies with a message on how to use the bot
+
+        /*
+        ** The /start function for the bot.
+        ** Replies with a message on how to use the bot
+        */
 
         reply.text('This bot will help you set a reminder and notify you ' +
         ' periodically to do it until it has been done. When done, simply ' +
@@ -53,7 +56,6 @@ module.exports = {
 
         var reminderList = "These are your active reminders:\n";
         var counter = 0;
-        console.log(reminders[msg.from.id]);
         for(var reminder in reminders[msg.from.id]) {
             if(reminders[msg.from.id][reminder].active) {
                 counter += 1;
@@ -149,7 +151,7 @@ module.exports = {
 
         var reminder = {};
         var msgText = msg.text.split(' ');
-        console.log(msgText.length);
+
         if(msgText.length <= 1) {
             reply.text('In order to set a reminder you have to put a day, time,' +
             'interval and name for the reminder.\n' +

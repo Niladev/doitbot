@@ -2,7 +2,6 @@ require('dotenv').config();
 
 const express = require('express');
 
-
 const app = express();
 const bodyParser = require('body-parser');
 const botgram = require('botgram');
@@ -13,7 +12,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: true
 }));
-
 
 bot.command('start', botController.start);
 bot.command('help', botController.help);
