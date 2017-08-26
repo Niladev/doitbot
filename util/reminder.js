@@ -10,7 +10,7 @@ exports.findOne = (userId, reminderName) => {
     return state.reminders[userId][reminderName.replace(/\s+/g, '').toLowerCase()];
 }
 
-exports.insertOne = (userId, reminder) => {
+exports.create = (userId, reminder) => {
     if(!state.reminders[userId]) state.reminders[userId] = {};
 
     state.reminders[userId][reminder.name.replace(/\s+/g, '').toLowerCase()] = reminder;
