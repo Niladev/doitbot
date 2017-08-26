@@ -3,6 +3,7 @@
 const cron = require('node-cron');
 const db = require('../util/db');
 const reminderUtil = require('../util/reminder');
+const cronUtil = require('../util/cron');
 var reminders = {};
 
 module.exports = {
@@ -203,7 +204,7 @@ module.exports = {
         ** Use arguments to create valid cron job
         */
 
-        if(cron.validate(cronString)) {
+        if(cronUtil.validate(cronString)) {
             reminder.cronString = cronString;
 
             // Persist object without cron task to database
@@ -214,42 +215,10 @@ module.exports = {
                     };
 
                     // Create cron job based on valid cron string
-                    reminder.schedule = cron.schedule(cronString, () => {
-                        if(!reminder.active && reminder.recurring){
-                            reminders[msg.from.id][reminder.name.replace(/\s+/g, '').toLowerCase()].active = true;
-                            db.get().collection('reminders')
-                                .updateOne({owner: msg.from.id, name: reminder.name}, {$set:{active: true}});
-                            return;
-                        } else if(!reminder.active && !reminder.recurring) {
-                            reminder.schedule.destroy();
-                            return;
-                        }
-
-                        reply.text(reminder.name);
-                        var intervalString = '*/' + reminder.interval + ' * * * *';
-                        if(cron.validate(intervalString)){
-                            reminder.intervalSchedule = cron.schedule(intervalString, () => {
-                                reply.text(reminder.name);
-                            });
-                        } else {
-                            reply.text('There was an error in the interval, so defaulted to 5 minutes.');
-                            reminder.intervalSchedule = cron.schedule('5 * * * *', () => {
-                                reply.text(reminder.name);
-                            });
-                        }
-
-                        // Remove reminder if not recurring
-                        if(!reminder.recurring){
-                            reminders[msg.from.id][reminder.name.replace(/\s+/g, '').toLowerCase()].active = false;
-                            db.get().collection('reminders')
-                                .updateOne({owner: msg.from.id, name: reminder.name}, {$set:{active: false}});
-                            reminder.schedule.destroy();
-                            return;
-                        }
-                    });
+                    reminder.schedule = cronUtil.create(cronString, reminder, msg.from.id);
 
                     // Add reminder to reminders if everything is successful
-                    reminderUtil.insertOne(msg.from.id, reminder);
+                    reminderUtil.create(msg.from.id, reminder);
                     reply.text('Your reminder has been saved!');
                     return;
             });

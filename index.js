@@ -4,8 +4,7 @@ const express = require('express');
 
 const app = express();
 const bodyParser = require('body-parser');
-const botgram = require('botgram');
-const bot = botgram(process.env.ACCESS_TOKEN);
+const bot = require('./util/bot').connect();
 const botController = require('./controllers/botController');
 const db = require('./util/db');
 
@@ -13,6 +12,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: true
 }));
+
+
 
 bot.command('start', botController.start);
 bot.command('help', botController.help);
@@ -22,8 +23,8 @@ bot.command('done', botController.done);
 
 db.connect((err) => {
     if(err) {
-        console.log('--ERROR CONNECTING TO THE DATABASE: ');
-        console.log(err);
+        console.error('--ERROR CONNECTING TO THE DATABASE: ');
+        console.error(err);
         process.exit(1);
     } else {
         app.listen(3000, () => {
