@@ -21,17 +21,18 @@ module.exports = {
      *
      * @param  {Function} callback  Callback to be executed by cron job
      *
-     * @return {Promise}            Returns validated reminder
+     * @return {Promise}            Returns promise with a validated reminder
+     *                              with an updated Reminder object cotaining
+     *                              the cron job and active boolean
      */
     create: (reminder, callback) => {
-        if(!reminder) {
-            Promise.reject(new Error('Reminder was undefined or not passed'));
+        if(!reminder || !callback) {
+            Promise.reject(new Error('Missing a parameter'));
         }
 
         const validateNameAndTime = (reminder) => {
 
             return new Promise((resolve, reject) => {
-                console.log(reminder);
 
                 if(!reminder.name) reject(new Error('The reminder needs to have a name'));
 
@@ -118,7 +119,7 @@ module.exports = {
                                                                        activeReminder.name,
                                                                        activeReminder);
                                                 return;
-                                            })
+                                            });
                                 } else if(!activeReminder.active && !activeReminder.recurring) {
                                     activeReminder.schedule.destroy();
                                     reminderUtil.updateOne(activeReminder.owner,
@@ -179,13 +180,88 @@ module.exports = {
                 .then(createCronAndUpdateReminder);
 
     },
-    delete: (id) => {
 
+    delete: (ownerId, reminder) => {
+        // TODO: Support delete method
     },
-    update: (id, reminder) => {
 
+    // TODO: Add documentation
+    update: (ownerId, updatedReminder) => {
+        if(!ownerId || !reminder) Promise.reject(new Error('Missing parameter'));
+
+        const validateNameAndTime = (reminder) => {
+
+            return new Promise((resolve, reject) => {
+
+                if(!reminder.name) reject(new Error('The reminder needs to have a name'));
+
+                if(!reminder.hour) reject(new Error('Hour of reminder was not defined'));
+
+                if(!reminder.minute) reject(new Error('Minute of reminder was not defined'));
+
+                if(!/\b(2[0-3]|[1]?[0-9])\b/.test(reminder.hour)) reject(new Error('Hour is not valid. Must be a value between 0 and 23'));
+
+                if(!/\b(5[0-9]|[0-5]?[0-9])\b/.test(reminder.minute)) reject(new Error('Minute is not valid. Must be a value between 0 and 59'));
+
+
+                reminder.time = {
+                    hour: reminder.hour.replace(/^0/, ''),
+                    minute: reminder.minute.replace(/^0/, '')
+                };
+
+                resolve(reminder);
+            });
+        }
+        const validateDay = (reminder) => {
+            return new Promise((resolve, reject) => {
+                if(!reminder.day) reject(new Error('Day has not been defined'));
+
+                if(reminder.day === 'today'){
+                    reminder.day = '*';
+                    reminder.recurring = false;
+                } else if(reminder.day === 'daily') {
+                    reminder.day = '*',
+                    reminder.recurring = true;
+                } else if(/\b((mon|tues|wed(nes)?|thur(s)?|fri|sat(ur)?|sun)(days?)?)\b/.test(reminder.day)) {
+                    // Check if plural of days and set recurring to match
+                    if(reminder.day.charAt(reminder.day.length - 1) === 's') {
+                        reminder.day =  reminder.day.substr(0, 3);// remove last letter of the string
+                        reminder.recurring = true;
+                    } else {
+                        reminder.day = reminder.day.substr(0, 3);
+                        reminder.recurring = false;
+                    }
+                } else {
+                    reject(new Error('Day was not valid. Must be a week day, today, or daily.'));
+                }
+
+                resolve(reminder);
+            });
+        }
+        const updateReminder = (reminder) => {
+            db.get().collection('reminders')
+                    .updateOneAsync({owner: ownerId, name: updatedReminder.name}, {$set:updatedReminder})
+                    .then(() => {
+                        reminderUtil.updateOne(ownerId, updatedReminder.name, updatedReminder);
+                    });
+        }
+
+        return validateNameAndTime(reminder).then(validateDay)
+                                            .then(updateReminder);
     },
-    get: (id) => {
 
+    // TODO: Add documentation
+    find: (ownerId, reminderName) => {
+        if(!ownerId || !reminder) Promise.reject(new Error('Missing parameter'));
+
+        return db.get().collection('reminders')
+            .findOneAsync({owner:ownerId, name:reminderName})
+            .then((reminder) => {
+                var finalReminder = Object.assign(reminder, reminderUtil.findOne(ownerId, reminderName));
+
+                return finalReminder
+            }).catch((err) => {
+                return new Error(err);
+            });
     }
 }
