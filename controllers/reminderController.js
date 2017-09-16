@@ -251,7 +251,7 @@ module.exports = {
     },
 
     // TODO: Add documentation
-    find: (ownerId, reminderName) => {
+    findOne: (ownerId, reminderName) => {
         if(!ownerId || !reminder) Promise.reject(new Error('Missing parameter'));
 
         return db.get().collection('reminders')
