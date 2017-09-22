@@ -185,7 +185,18 @@ module.exports = {
         // TODO: Support delete method
     },
 
-    // TODO: Add documentation
+    /**
+     * Updates a reminder in both database and reminderUtil
+     * @param  {String} ownerId         The id of the owner
+     * @param  {Object} updatedReminder A reminder Object containing fields: {
+     *                                      name: String,
+     *                                      owner: String,
+     *                                      hour: String,
+     *                                      minute: String,
+     *                                      interval: String
+     *                                  }
+     * @return {Promise}                Returns a promise resolving into the updated reminder
+     */
     update: (ownerId, updatedReminder) => {
         if(!ownerId || !reminder) Promise.reject(new Error('Missing parameter'));
 
@@ -250,7 +261,12 @@ module.exports = {
                                             .then(updateReminder);
     },
 
-    // TODO: Add documentation
+    /**
+     * Finds a reminder object and returns a promise resolving with this object
+     * @param  {String} ownerId         Id of the owner of the reminder
+     * @param  {String} reminderName    String name of the reminder
+     * @return {Promise}                Returns a Promise that resolves into the reminder
+     */
     findOne: (ownerId, reminderName) => {
         if(!ownerId || !reminder) Promise.reject(new Error('Missing parameter'));
 
