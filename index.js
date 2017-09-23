@@ -36,6 +36,7 @@ db.connect().then(() => {
             if(cronUtil.validate(reminder.cronString)){
                 reminder.schedule = cronUtil.create(reminder.cronString, reminder, reminder.owner);
                 reminderUtil.create(reminder.owner, reminder);
+                
             }
         }
 

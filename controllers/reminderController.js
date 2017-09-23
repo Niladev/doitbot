@@ -45,10 +45,8 @@ module.exports = {
                 if(!/\b(5[0-9]|[0-5]?[0-9])\b/.test(reminder.minute)) reject(new Error('Minute is not valid. Must be a value between 0 and 59'));
 
 
-                reminder.time = {
-                    hour: reminder.hour.replace(/^0/, ''),
-                    minute: reminder.minute.replace(/^0/, '')
-                };
+                reminder.hour = reminder.hour.replace(/^0/, '');
+                reminder.minute = reminder.minute.replace(/^0/, '');
 
                 resolve(reminder);
             });
@@ -80,7 +78,7 @@ module.exports = {
             });
         }
         const createCronString = (reminder) => {
-            var cronString = reminder.time.minute + ' ' + reminder.time.hour + ' ' + '* * ' + reminder.day;
+            var cronString = reminder.minute + ' ' + reminder.hour + ' ' + '* * ' + reminder.day;
 
             if(cron.validate(cronString)) {
                 reminder.cronString = cronString;
@@ -197,13 +195,12 @@ module.exports = {
      *                                  }
      * @return {Promise}                Returns a promise resolving into the updated reminder
      */
-    update: (ownerId, updatedReminder) => {
-        if(!ownerId || !reminder) Promise.reject(new Error('Missing parameter'));
+    updateOne: (ownerId, updatedReminder) => {
+        if(!ownerId || !updatedReminder) Promise.reject(new Error('Missing parameter'));
 
         const validateNameAndTime = (reminder) => {
 
             return new Promise((resolve, reject) => {
-
                 if(!reminder.name) reject(new Error('The reminder needs to have a name'));
 
                 if(!reminder.hour) reject(new Error('Hour of reminder was not defined'));
@@ -214,11 +211,8 @@ module.exports = {
 
                 if(!/\b(5[0-9]|[0-5]?[0-9])\b/.test(reminder.minute)) reject(new Error('Minute is not valid. Must be a value between 0 and 59'));
 
-
-                reminder.time = {
-                    hour: reminder.hour.replace(/^0/, ''),
-                    minute: reminder.minute.replace(/^0/, '')
-                };
+                if(reminder.hour.length >= 2) reminder.hour = reminder.hour.replace(/^0/, '');;
+                if(reminder.minute.length >= 2) reminder.minute = reminder.minute.replace(/^0/, '');
 
                 resolve(reminder);
             });
@@ -227,7 +221,7 @@ module.exports = {
             return new Promise((resolve, reject) => {
                 if(!reminder.day) reject(new Error('Day has not been defined'));
 
-                if(reminder.day === 'today'){
+                if(reminder.day === 'today' || reminder.day === '*'){
                     reminder.day = '*';
                     reminder.recurring = false;
                 } else if(reminder.day === 'daily') {
@@ -257,7 +251,7 @@ module.exports = {
                     });
         }
 
-        return validateNameAndTime(reminder).then(validateDay)
+        return validateNameAndTime(updatedReminder).then(validateDay)
                                             .then(updateReminder);
     },
 
@@ -268,16 +262,27 @@ module.exports = {
      * @return {Promise}                Returns a Promise that resolves into the reminder
      */
     findOne: (ownerId, reminderName) => {
-        if(!ownerId || !reminder) Promise.reject(new Error('Missing parameter'));
+        if(!ownerId || !reminderName) return Promise.reject(new Error('Missing parameter'));
+
+
 
         return db.get().collection('reminders')
-            .findOneAsync({owner:ownerId, name:reminderName})
+            .findOneAsync({owner:ownerId, name: reminderName.replace(/^\s+|\s+$/gm, '')})
             .then((reminder) => {
-                var finalReminder = Object.assign(reminder, reminderUtil.findOne(ownerId, reminderName));
+                if(!reminder) {
+                    throw new Error('Reminder not found');
+                } else {
+                    var cronReminder = reminderUtil.findOne(ownerId, reminderName.replace(/^\s+|\s+$/gm, ''));
 
-                return finalReminder
-            }).catch((err) => {
-                return new Error(err);
-            });
+                    if(!cronReminder) {
+                        throw new Error('Could not find cron reminder');
+                    }
+
+                    var finalReminder = Object.assign(reminder, cronReminder);
+                    console.log(finalReminder);
+                    return finalReminder
+                }
+
+            })
     }
 }
