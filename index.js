@@ -22,31 +22,30 @@ bot.command('remindme', botController.remindMe);
 bot.command('reminders', botController.reminders);
 bot.command('done', botController.done);
 
-db.connect((err) => {
-    if(err) {
-        console.error('--ERROR CONNECTING TO THE DATABASE: ');
-        console.error(err);
-        process.exit(1);
-    } else {
-        db.get().collection('reminders').find({active: true}).toArray((err, activeReminders) => {
-            if(err) {
-                console.error('--ERROR RETRIEVING ACTIVE REMINDERS');
-                console.error(err);
-            }
+db.connect().then(() => {
 
-            console.info('Active reminders have been retrieved');
-            for(var reminderIndex in activeReminders) {
-                var reminder = activeReminders[reminderIndex];
-                if(cronUtil.validate(reminder.cronString)){
-                    reminder.schedule = cronUtil.create(reminder.cronString, reminder, reminder.owner);
-                    reminderUtil.create(reminder.owner, reminder);
-                }                
+    db.get().collection('reminders').find({active: true}).toArray((err, activeReminders) => {
+        if(err) {
+            console.error('--ERROR RETRIEVING ACTIVE REMINDERS');
+            console.error(err);
+        }
+
+        console.info('Active reminders have been retrieved');
+        for(var reminderIndex in activeReminders) {
+            var reminder = activeReminders[reminderIndex];
+            if(cronUtil.validate(reminder.cronString)){
+                reminder.schedule = cronUtil.create(reminder.cronString, reminder, reminder.owner);
+                reminderUtil.create(reminder.owner, reminder);
+                
             }
-            console.info('Active reminders have been reinstanciated');
-        });
+        }
 
         app.listen(3000, () => {
             console.log('App listening on port 3000');
-        });
-    }
-})
+        })
+    });
+}).catch((err) => {
+    console.error('--ERROR CONNECTING TO THE DATABASE: ');
+    console.error(err);
+    process.exit(1);
+});

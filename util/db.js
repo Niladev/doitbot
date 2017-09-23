@@ -1,26 +1,36 @@
-const MongoClient = require('mongodb').MongoClient;
+const Promise = require('bluebird');
+const MongoClient = Promise.promisifyAll(require('mongodb')).MongoClient;
 const mongoURL = process.env.DB_URL;
 
 
 var state = {
-    db: null,
-    reminders: {}
+    db: null
 };
 
-exports.connect = (done) => {
-    if(state.db) return done();
+// exports.connect = (done) => {
+//     if(state.db) return done();
+//
+//     MongoClient.connect(mongoURL, (err, database) => {
+//         if(err) return done(err);
+//
+//         console.log('Connected to the database');
+//         state.db = database;
+//         done();
+//     });
+// }
 
-    MongoClient.connect(mongoURL, (err, database) => {
-        if(err) return done(err);
+exports.connect = () => {
+    return MongoClient.connectAsync(mongoURL)
+                .then((db) => {
+                    db.collectionAsync('reminders');
+                    state.db = db;
 
-        console.log('Connected to the database');
-        state.db = database;
-        done();
-    });
+                    return state.db;
+                });
 }
 
 exports.get = () => {
-    return state.db;
+    return Promise.promisifyAll(state.db);
 }
 
 exports.close = () => {

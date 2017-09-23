@@ -2,22 +2,22 @@ var state = {
     reminders: {}
 }
 
-exports.find = (userId) => {
-    return state.reminders[userId];
+exports.find = (ownerId) => {
+    return state.reminders[ownerId];
 }
 
-exports.findOne = (userId, reminderName) => {
-    return state.reminders[userId][reminderName.replace(/\s+/g, '').toLowerCase()];
+exports.findOne = (ownerId, reminderName) => {
+    return state.reminders[ownerId][reminderName.replace(/\s+/g, '').toLowerCase()];
 }
 
-exports.create = (userId, reminder) => {
-    if(!state.reminders[userId]) state.reminders[userId] = {};
-
-    state.reminders[userId][reminder.name.replace(/\s+/g, '').toLowerCase()] = reminder;
+exports.create = (ownerId, reminder) => {
+    if(!state.reminders[ownerId]) state.reminders[ownerId] = {};
+    state.reminders[ownerId][reminder.name.replace(/\s+/g, '').toLowerCase()] = reminder;
     return;
 }
 
-exports.updateOne = (userId, reminderName, reminder) => {
-    state.reminders[userId][reminderName.replace(/\s+/g, '').toLowerCase()] = reminder;
+exports.updateOne = (ownerId, reminderName, reminder) => {
+    var reminderId = reminderName.replace(/\s+/g, '').toLowerCase();
+    state.reminders[ownerId][reminderId] = Object.assign(state.reminders[ownerId][reminderId], reminder);
     return;
 }
