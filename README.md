@@ -41,7 +41,7 @@ Upcoming features will be listed here in any order.
 
 ### To do
 
-* **Better error handling**
+* **Better error handling**<br />
   Currently the app has no error handling regarding the bot. Every few days of uptime a breaking error occurs
   and app has to be restarted.
 
