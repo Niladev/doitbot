@@ -41,6 +41,10 @@ Upcoming features will be listed here in any order.
 
 ### To do
 
+* **Better error handling**
+  Currently the app has no error handling regarding the bot. Every few days of uptime a breaking error occurs
+  and app has to be restarted.
+
 * **Tests**<br/>
   Implement tests to ensure bot is working as intended whenever bugs are fixed or new features are implemented.
 
@@ -49,8 +53,12 @@ Upcoming features will be listed here in any order.
 
 * **Implement /remove command**<br/>
   Currently recurring reminders will continue forever and can't be completed or removed. Implement a function that allows the removal of recurring reminders.
-  
+
 ### Done
+
+* ~~**Refactor to decouple from Telegram Bot**~~
+  ~~Currently the reminder actions are tightly coupled with the bot. Refactor to a more decoupled design to allow for other
+  opportunities and clients to use the reminders~~
 
 * ~~**Task persistance** - *High priority*~~<br/>
   ~~Currently the bot is vulnerable to server shutdown as cron jobs are only saved in the current instance. All reminders are saved in a mongo database along with vital information and this feature will start all tasks again upon restart.~~
